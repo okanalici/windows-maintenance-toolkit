@@ -2,15 +2,15 @@
 
 ## Project status
 
-- Last reviewed: 2026-09-18
+- Last reviewed: 2026-10-27
 - Scope: Seven Windows batch utilities in `src/`
 - Visible script version: `1.0.0`
 - External dependencies: None. Some scripts invoke Windows PowerShell and
   built-in Windows utilities.
 - Git repository: Present at the repository root.
-- `src/clean-network-optimization.bat`: Its main menu includes an option that
-  deletes only the proxy backup created by the tool under `%TEMP%`. The script
-  preserves its compact menu layout and `CONSOLE_LINES=50` setting.
+- `src/clean-network-optimization.bat`: Saves the current user's proxy registry
+  settings to `%TEMP%\windows_maintenance_proxy_backup.reg` before resetting
+  them. The main menu has no backup-deletion option.
 - All seven utilities use Turkish UI text and a consistent ANSI-colored console
   presentation. Existing deletion/removal choices remain intact; the read-only
   scan tool does not gain deletion behavior.
@@ -39,8 +39,8 @@ text changes.
 | `src/clean-network-optimization.bat` | Yes | Can operate on DNS, proxy, TCP/IP, Winsock, and active network adapters. Stores its proxy backup under `%TEMP%`. |
 | `src/clean-amd-cache.bat` | Yes | Selectively removes AMD and graphics-API shader-cache folders. |
 | `src/clean-onedrive.bat` | Yes | Stops OneDrive and can remove application, policy, and task remnants; its second option can also remove the local user folder. |
-| `src/cleanliness-scan.bat` | Yes | Performs a read-only cleanup scan using an embedded PowerShell payload. |
-| `src/manage-right-click-menu.bat` | No | Changes only the current user's (`HKCU`) Windows 11 context-menu setting and can restart Explorer. |
+| `src/cleanliness-scan.bat` | Yes | Scans without deleting files using an embedded PowerShell payload; writes HTML/CSV reports and opens the HTML report. |
+| `src/manage-right-click-menu.bat` | No | Changes only the current user's (`HKCU`) Windows 11 context-menu setting and immediately restarts Explorer after a successful change. |
 
 ## Risky operation summary
 

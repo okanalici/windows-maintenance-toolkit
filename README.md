@@ -13,7 +13,7 @@ A collection of interactive Windows batch utilities for cleanup, diagnostics, re
 | `src/clean-onedrive.bat` | Removes OneDrive components; optionally removes the local OneDrive user folder. | Required |
 | `src/clean-pc.bat` | Interactive Windows cleanup with automatic, manual and preview modes. | Required |
 | `src/clean-winsxs.bat` | DISM/SFC based Windows component-store analysis, repair and cleanup. | Required |
-| `src/cleanliness-scan.bat` | Read-only cleanup scan that generates HTML/CSV reports. | Required for full system coverage |
+| `src/cleanliness-scan.bat` | Scans without deleting files and generates HTML/CSV reports. | Required |
 | `src/manage-right-click-menu.bat` | Switches between the classic and default Windows 11 context menu. | Not required |
 
 ## Requirements
@@ -21,7 +21,7 @@ A collection of interactive Windows batch utilities for cleanup, diagnostics, re
 - Windows 10 or Windows 11 (some features are Windows 11 specific)
 - Windows PowerShell 5.1 for PowerShell-backed operations
 - Administrator privileges for tools marked **Required** above
-- UTF-8 capable Windows console
+- Windows Command Prompt (`cmd.exe`) with UTF-8 and ANSI escape-sequence support
 
 ## Usage
 
@@ -37,7 +37,9 @@ These scripts can modify system configuration or permanently delete data. In par
 - `src/clean-onedrive.bat` includes an option that permanently deletes the detected local OneDrive user folder.
 - `src/clean-winsxs.bat` includes DISM `/ResetBase`; after this operation, installed Windows updates cannot be uninstalled.
 - `src/clean-network-optimization.bat` can reset proxy, TCP/IP, Winsock, DNS and network adapter settings. Custom corporate/VPN/static-network settings may need to be reconfigured.
-- `src/clean-pc.bat` can delete temporary/update/cache data and empty the Recycle Bin.
+- `src/clean-pc.bat` can delete temporary/update/cache data, `Windows.old`, and Recycle Bin contents. Automatic mode requests one confirmation, then runs all cleanup steps without individual prompts.
+- `src/manage-right-click-menu.bat` changes only the current user's `HKCU` settings and immediately restarts Explorer after a successful change. Menu option **2** restores the default Windows 11 context menu.
+- `src/cleanliness-scan.bat` does not delete scanned files or change system settings, but writes HTML/CSV reports and opens the HTML report. Reports go under `Bilgisayar-Tarama-Raporu` on the Desktop; if the Desktop path is unavailable it uses the working directory, and if the selected folder cannot be used it tries `%LOCALAPPDATA%` then `%TEMP%`. Reports can contain personal paths, installed applications and startup entries; review and redact them before sharing.
 
 Create an appropriate backup or restore point before using maintenance tools on important systems. Review the source before execution.
 
@@ -49,7 +51,7 @@ The version displayed by each utility is defined in its own `VERSION` variable u
 
 ## Security
 
-The repository contains plain-text Batch/PowerShell logic and does not download or execute remote payloads. Some operations invoke built-in Windows tools such as `DISM`, `SFC`, `netsh`, `reg`, and Windows PowerShell.
+The repository contains plain-text Batch/PowerShell logic and does not download or execute remote scripts. Some operations invoke built-in Windows tools such as `DISM`, `SFC`, `netsh`, `reg`, and Windows PowerShell. This does not mean all operations are offline: connectivity tests send network traffic, and DISM `/RestoreHealth` may obtain repair content through Windows Update.
 
 See [SECURITY.md](SECURITY.md) for reporting security issues.
 

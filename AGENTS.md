@@ -30,14 +30,41 @@ All executable batch scripts are stored in `src/`:
 
 ## Running and validation
 
-- Run the scripts as `.bat` files on Windows 10 or Windows 11.
-- Scripts that require administrator privileges perform their own elevation
-  checks. Do not force an operation when it fails in a non-administrator
-  session.
-- After a change, at minimum review the syntax of the affected script and run
-  the affected menu flow in a Windows test environment.
-- Preserve the embedded PowerShell payload start/end markers in
-  `src/cleanliness-scan.bat`; its payload extraction depends on them.
+- Run `.bat` files with `cmd.exe` on Windows 10 or Windows 11, with Windows
+  PowerShell 5.1 and a UTF-8/ANSI-capable console. No dependency install is needed.
+- All scripts except `src/manage-right-click-menu.bat` require administrator
+  privileges, including the scan tool. They check elevation themselves; do not
+  bypass a failed check.
+- There is no automated test/build runner. For documentation-only changes, run
+  `git diff --check` from the repository root in PowerShell or Command Prompt;
+  Git is required. This checks whitespace, not Batch syntax or runtime behavior.
+- For scan-payload changes, also run this read-only syntax check from the
+  repository root in Windows PowerShell 5.1; it parses but never runs the payload:
+
+  ```powershell
+  $raw = [IO.File]::ReadAllText((Join-Path $PWD 'src/cleanliness-scan.bat'), [Text.Encoding]::UTF8)
+  $begin = '### POWERSHELL_PAYLOAD_BEGIN ###'
+  $end = '### POWERSHELL_PAYLOAD_END ###'
+  $i = $raw.IndexOf($begin)
+  if ($i -lt 0) { throw 'Payload start marker missing' }
+  $i += $begin.Length
+  $j = $raw.IndexOf($end, $i)
+  if ($j -lt 0) { throw 'Payload end marker missing' }
+  $tokens = $null; $errors = $null
+  $null = [Management.Automation.Language.Parser]::ParseInput($raw.Substring($i, $j - $i), [ref]$tokens, [ref]$errors)
+  if ($errors.Count) { $errors; exit 1 }
+  ```
+
+- After script changes, review the affected Batch syntax and test the affected
+  menu flow in a disposable Windows VM with the required privileges. Do not run
+  maintenance actions on the host as a validation shortcut.
+- Preserve the exact `### POWERSHELL_PAYLOAD_BEGIN ###` and
+  `### POWERSHELL_PAYLOAD_END ###` markers and the Batch exit before the payload
+  in `src/cleanliness-scan.bat`; extraction depends on them.
+- Keep the scan non-destructive. It still writes HTML/CSV reports under
+  `Bilgisayar-Tarama-Raporu` on the Desktop (falling back to the working directory,
+  then LOCALAPPDATA/TEMP when needed) and opens the HTML report; running it is
+  not a side-effect-free syntax check.
 - When Windows is unavailable, do not claim that `.bat` files were executed.
   Perform static checks instead and report this limitation.
 
